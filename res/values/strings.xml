@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ImageFilter</string>
+    <string name="app_name">ImageFilter</string><string name="loadImageButton">Load Image</string><string name="applyFilterButton">Apply Filter</string><string name="imageDescription">Currently selected image</string>
 </resources>

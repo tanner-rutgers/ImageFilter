@@ -46,11 +46,11 @@ public abstract class ImageFilter {
         for (int i = 0; i < bitmap.getHeight(); i++) {
             for (int j = 0; j < bitmap.getWidth(); j++) {
                 int index = i*width+j;
-                int pixel = bitmap.getPixel(i, j);
-                red[index] = Color.red(bitmap.getPixel(i, j));
-                green[index] = Color.green(bitmap.getPixel(i, j));
-                blue[index] = Color.blue(bitmap.getPixel(i, j));
-                alpha[index] = Color.alpha(bitmap.getPixel(i, j));
+                int pixel = bitmap.getPixel(j, i);
+                red[index] = Color.red(bitmap.getPixel(j, i));
+                green[index] = Color.green(bitmap.getPixel(j, i));
+                blue[index] = Color.blue(bitmap.getPixel(j, i));
+                alpha[index] = Color.alpha(bitmap.getPixel(j, i));
             }
         }
 

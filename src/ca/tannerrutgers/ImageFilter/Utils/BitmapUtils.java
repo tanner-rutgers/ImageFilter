@@ -1,11 +1,7 @@
-package ca.tannerrutgers.ImageFilter.Utils;
+package ca.tannerrutgers.ImageFilter.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Tanner on 22/01/14.
@@ -50,32 +46,18 @@ public class BitmapUtils {
         return inSampleSize;
     }
 
-    public static Map<Character,int[]> getColorMap(Bitmap bitmap) {
-        Map<Character,int[]> colorMap = new HashMap<Character, int[]>();
-        
+    public static int[] getPixels(Bitmap bitmap) {
+
+        if (bitmap == null) {
+            return new int[0];
+        }
+
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        
+
         int[] pixels = new int[width*height];
         bitmap.getPixels(pixels,0,width,0,0,width,height);
 
-        int[] red = new int[pixels.length];
-        int[] green = new int[pixels.length];
-        int[] blue = new int[pixels.length];
-        int[] alpha = new int[pixels.length];
-
-        for (int i = 0; i < pixels.length; i++) {
-            red[i] = Color.red(pixels[i]);
-            green[i] = Color.green(pixels[i]);
-            blue[i] = Color.blue(pixels[i]);
-            alpha[i] = Color.alpha(pixels[i]);
-        }
-
-        colorMap.put('R',red);
-        colorMap.put('G',green);
-        colorMap.put('B',blue);
-        colorMap.put('A',alpha);
-
-        return colorMap;
+        return pixels;
     }
 }

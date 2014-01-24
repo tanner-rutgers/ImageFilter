@@ -1,11 +1,7 @@
 package ca.tannerrutgers.ImageFilter.models;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import ca.tannerrutgers.ImageFilter.Utils.BitmapUtils;
-
-import java.util.ArrayList;
-import java.util.Map;
+import ca.tannerrutgers.ImageFilter.utils.BitmapUtils;
 
 /**
  * Created by Tanner on 1/18/14.
@@ -23,30 +19,43 @@ public class MeanFilter extends ImageFilter {
     @Override
     public Bitmap applyFilter() {
 
-        // Extract color values from Bitmap
-        Map<Character,int[]> colorMap = BitmapUtils.getColorMap(bitmap);
-
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
+        int offset = filterSize/2;
 
-        int[] pixels = new int[width*height];
-        bitmap.getPixels(pixels,0,width,0,0,width,height);
+        int[] pixels = BitmapUtils.getPixels(bitmap);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+
                 int red = 0;
                 int green = 0;
                 int blue = 0;
                 int alpha = 0;
-                ArrayList<Integer> maskIndices = getMaskIndices(x, y);
-                double weight = 1.0/maskIndices.size();
-                for (Integer index : maskIndices) {
-                    red += colorMap.get('R')[index]*weight;
-                    green += colorMap.get('G')[index]*weight;
-                    blue += colorMap.get('B')[index]*weight;
-                    alpha += colorMap.get('A')[index]*weight;
+
+                int maskPixels = 0;
+                for (int row = y-offset; row <= y+offset; row++) {
+                    for (int col = x-offset; col <= x+offset; col++) {
+                        if (row >= 0 && col >= 0 && row < height && col < width) {
+
+                            int color = pixels[row*width+col];
+
+                            red += (color >> 16) & 0xFF;
+                            green += (color >> 8) & 0xFF;
+                            blue += color & 0xFF;
+                            alpha += color >>> 24;
+
+                            maskPixels++;
+                        }
+                    }
                 }
-                pixels[y*width+x] = Color.argb(alpha,red,green,blue);
+
+                red = red/maskPixels;
+                green = green/maskPixels;
+                blue = blue/maskPixels;
+                alpha = alpha/maskPixels;
+
+                pixels[y*width+x] = (alpha << 24) | (red << 16) | (green << 8) | blue;
             }
         }
         return Bitmap.createBitmap(pixels,width,height,bitmap.getConfig());

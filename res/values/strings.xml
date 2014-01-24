@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ImageFilter</string><string name="loadImageButton">Load Image</string><string name="applyFilterButton">Apply Filter</string><string name="imageDescription">Currently selected image</string>
+    <string name="app_name">ImageFilter</string>
+    <string name="loadImageButton">Load Image</string>
+    <string name="applyFilterButton">Apply Filter</string>
+    <string name="imageDescription">Currently selected image</string>
+    <string name="filter_size">Filter size</string>
+    <string name="mean_filter">Mean filter</string>
+    <string name="median_filter">Median filter</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

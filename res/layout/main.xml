@@ -7,18 +7,25 @@
     <ImageView
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:id="@id/imageView" android:layout_gravity="center_horizontal" android:layout_weight="1"
+            android:id="@id/imageView"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
             android:contentDescription="@string/imageDescription"
             android:background="@drawable/inset_background"/>
     <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/loadImageButton"
-            android:id="@+id/loadImageButton" android:clickable="true" android:onClick="selectImageClicked"/>
+            android:id="@+id/loadImageButton"
+            android:clickable="true"
+            android:onClick="selectImageClicked"/>
     <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/applyFilterButton"
-            android:id="@+id/applyFilterButton" android:clickable="true" android:onClick="applyFilter"/>
+            android:id="@+id/applyFilterButton"
+            android:clickable="true"
+            android:enabled="false"
+            android:onClick="applyFilterClicked"/>
 </LinearLayout>
 

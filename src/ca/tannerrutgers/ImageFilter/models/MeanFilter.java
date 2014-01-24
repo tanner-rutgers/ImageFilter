@@ -2,6 +2,7 @@ package ca.tannerrutgers.ImageFilter.models;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import ca.tannerrutgers.ImageFilter.Utils.BitmapUtils;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -21,32 +22,34 @@ public class MeanFilter extends ImageFilter {
 
     @Override
     public Bitmap applyFilter() {
-        Bitmap filtered = Bitmap.createBitmap(bitmap);
 
         // Extract color values from Bitmap
-        Map<Character,int[]> colorMap = getColorMap(bitmap);
+        Map<Character,int[]> colorMap = BitmapUtils.getColorMap(bitmap);
 
-        for (int i = 0; i < bitmap.getHeight(); i++) {
-            for (int j = 0; j < bitmap.getWidth(); j++) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        int[] pixels = new int[width*height];
+        bitmap.getPixels(pixels,0,width,0,0,width,height);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 int red = 0;
                 int green = 0;
                 int blue = 0;
                 int alpha = 0;
-                ArrayList<Integer> maskIndices = getMaskIndices(i, j);
+                ArrayList<Integer> maskIndices = getMaskIndices(x, y);
+                double weight = 1.0/maskIndices.size();
                 for (Integer index : maskIndices) {
-                    red += colorMap.get('R')[index];
-                    green += colorMap.get('G')[index];
-                    blue += colorMap.get('B')[index];
-                    alpha += colorMap.get('A')[index];
+                    red += colorMap.get('R')[index]*weight;
+                    green += colorMap.get('G')[index]*weight;
+                    blue += colorMap.get('B')[index]*weight;
+                    alpha += colorMap.get('A')[index]*weight;
                 }
-                red = red/maskIndices.size();
-                green = green/maskIndices.size();
-                blue = blue/maskIndices.size();
-                alpha = alpha/maskIndices.size();
-                filtered.setPixel(i, j, Color.argb(alpha,red,green,blue));
+                pixels[y*width+x] = Color.argb(alpha,red,green,blue);
             }
         }
-        return filtered;
+        return Bitmap.createBitmap(pixels,width,height,bitmap.getConfig());
     }
 
 

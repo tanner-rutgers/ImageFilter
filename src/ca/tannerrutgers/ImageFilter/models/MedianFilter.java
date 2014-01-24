@@ -2,6 +2,7 @@ package ca.tannerrutgers.ImageFilter.models;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import ca.tannerrutgers.ImageFilter.Utils.BitmapUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,14 +23,19 @@ public class MedianFilter extends ImageFilter {
 
     @Override
     public Bitmap applyFilter() {
-        Bitmap filtered = Bitmap.createBitmap(bitmap);
 
         // Extract color values from Bitmap
-        Map<Character,int[]> colorMap = getColorMap(bitmap);
+        Map<Character,int[]> colorMap = BitmapUtils.getColorMap(bitmap);
 
-        for (int i = 0; i < bitmap.getHeight(); i++) {
-            for (int j = 0; j < bitmap.getWidth(); j++) {
-                ArrayList<Integer> maskIndices = getMaskIndices(i, j);
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        int[] pixels = new int[width*height];
+        bitmap.getPixels(pixels,0,width,0,0,width,height);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                ArrayList<Integer> maskIndices = getMaskIndices(x, y);
                 ArrayList<Integer> reds = new ArrayList<Integer>();
                 ArrayList<Integer> greens = new ArrayList<Integer>();
                 ArrayList<Integer> blues = new ArrayList<Integer>();
@@ -41,14 +47,16 @@ public class MedianFilter extends ImageFilter {
                     blues.add(colorMap.get('B')[index]);
                     alphas.add(colorMap.get('A')[index]);
                 }
+
                 int red = getMedian(reds);
                 int green = getMedian(greens);
                 int blue = getMedian(blues);
                 int alpha = getMedian(alphas);
-                filtered.setPixel(i, j, Color.argb(alpha, red, green, blue));
+
+                pixels[y*width+x] = Color.argb(alpha, red, green, blue);
             }
         }
-        return filtered;
+        return Bitmap.createBitmap(pixels,width,height,bitmap.getConfig());
     }
 
     private int getMedian(ArrayList<Integer> values) {

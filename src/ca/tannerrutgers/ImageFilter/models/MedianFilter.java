@@ -1,6 +1,7 @@
 package ca.tannerrutgers.ImageFilter.models;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import ca.tannerrutgers.ImageFilter.utils.BitmapUtils;
 
 import java.util.ArrayList;
@@ -31,6 +32,10 @@ public class MedianFilter extends ImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
 
+                if (cancelFiltering) {
+                    return null;
+                }
+
                 ArrayList<Integer> reds = new ArrayList<Integer>(offset);
                 ArrayList<Integer> greens = new ArrayList<Integer>(offset);
                 ArrayList<Integer> blues = new ArrayList<Integer>(offset);
@@ -42,10 +47,10 @@ public class MedianFilter extends ImageFilter {
 
                             int color = pixels[row*width+col];
 
-                            reds.add((color >> 16) & 0xFF);
-                            greens.add((color >> 8) & 0xFF);
-                            blues.add(color & 0xFF);
-                            alphas.add(color >>> 24);
+                            reds.add(Color.red(color));
+                            greens.add(Color.green(color));
+                            blues.add(Color.blue(color));
+                            alphas.add(Color.alpha(color));
                         }
                     }
                 }
@@ -55,7 +60,7 @@ public class MedianFilter extends ImageFilter {
                 int blue = getMedian(blues);
                 int alpha = getMedian(alphas);
 
-                pixels[y*width+x] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+                pixels[y*width+x] = Color.argb(alpha,red,green,blue);
             }
         }
         return Bitmap.createBitmap(pixels,width,height,bitmap.getConfig());

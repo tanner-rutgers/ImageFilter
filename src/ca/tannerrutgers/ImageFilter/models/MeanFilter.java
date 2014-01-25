@@ -1,6 +1,7 @@
 package ca.tannerrutgers.ImageFilter.models;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import ca.tannerrutgers.ImageFilter.utils.BitmapUtils;
 
 /**
@@ -16,6 +17,9 @@ public class MeanFilter extends ImageFilter {
         super(image, size);
     }
 
+    /**
+     * Apply a mean filter to the Bitmap
+     */
     @Override
     public Bitmap applyFilter() {
 
@@ -23,16 +27,24 @@ public class MeanFilter extends ImageFilter {
         int height = bitmap.getHeight();
         int offset = filterSize/2;
 
+        // Retrieve pixels of bitmap for efficiency
         int[] pixels = BitmapUtils.getPixels(bitmap);
 
+        // Iterate over all pixels of image determine new values
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+
+                if (cancelFiltering) {
+                    return null;
+                }
 
                 int red = 0;
                 int green = 0;
                 int blue = 0;
                 int alpha = 0;
 
+                // Retrieve mask pixels and calculate mean value for new pixel
+                // This is done primitively for efficiency
                 int maskPixels = 0;
                 for (int row = y-offset; row <= y+offset; row++) {
                     for (int col = x-offset; col <= x+offset; col++) {
@@ -40,10 +52,10 @@ public class MeanFilter extends ImageFilter {
 
                             int color = pixels[row*width+col];
 
-                            red += (color >> 16) & 0xFF;
-                            green += (color >> 8) & 0xFF;
-                            blue += color & 0xFF;
-                            alpha += color >>> 24;
+                            red += Color.red(color);
+                            green += Color.green(color);
+                            blue += Color.blue(color);
+                            alpha += Color.alpha(color);
 
                             maskPixels++;
                         }
@@ -55,7 +67,8 @@ public class MeanFilter extends ImageFilter {
                 blue = blue/maskPixels;
                 alpha = alpha/maskPixels;
 
-                pixels[y*width+x] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+                // Set new pixel to mean value
+                pixels[y*width+x] = Color.argb(alpha,red,green,blue);
             }
         }
         return Bitmap.createBitmap(pixels,width,height,bitmap.getConfig());

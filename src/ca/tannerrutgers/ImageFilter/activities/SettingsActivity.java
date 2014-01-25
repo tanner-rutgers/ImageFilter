@@ -16,7 +16,7 @@ public class SettingsActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         // Retrieve maximum allowed mask size
-        int maxMaskSize = getIntent().getIntExtra("max_mask_size", ImageFilter.SIZE_MAX);
+        int maxMaskSize = getIntent().getIntExtra("max_mask_size", MaskSizePreference.SIZE_DEFAULT_MAX);
 
         // Display preference fragment as main content
         getFragmentManager().beginTransaction()

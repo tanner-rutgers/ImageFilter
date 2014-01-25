@@ -25,7 +25,7 @@ public class MeanFilter extends ImageFilter {
 
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        int offset = filterSize/2;
+        int offset = maskSize/2;
 
         // Retrieve pixels of bitmap for efficiency
         int[] pixels = BitmapUtils.getPixels(bitmap);
@@ -34,6 +34,7 @@ public class MeanFilter extends ImageFilter {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
 
+                // If filtering has been asked to cancel, stop filtering
                 if (cancelFiltering) {
                     return null;
                 }

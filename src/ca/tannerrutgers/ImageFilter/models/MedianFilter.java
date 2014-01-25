@@ -25,13 +25,16 @@ public class MedianFilter extends ImageFilter {
 
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        int offset = filterSize/2;
+        int offset = maskSize/2;
 
+        // Retrieve pixels of bitmap for efficiency
         int[] pixels = BitmapUtils.getPixels(bitmap);
 
+        // Iterate over all pixels of image determine new values
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
 
+                // If filtering has been asked to cancel, stop filtering
                 if (cancelFiltering) {
                     return null;
                 }
@@ -41,6 +44,8 @@ public class MedianFilter extends ImageFilter {
                 ArrayList<Integer> blues = new ArrayList<Integer>(offset);
                 ArrayList<Integer> alphas = new ArrayList<Integer>(offset);
 
+                // Retrieve mask pixels and calculate median value for new pixel
+                // This is done primitively for efficiency
                 for (int row = y-offset; row <= y+offset; row++) {
                     for (int col = x-offset; col <= x+offset; col++) {
                         if (row >= 0 && col >= 0 && row < height && col < width) {
@@ -66,6 +71,9 @@ public class MedianFilter extends ImageFilter {
         return Bitmap.createBitmap(pixels,width,height,bitmap.getConfig());
     }
 
+    /**
+     * Returns the median value of the passed value list
+     */
     private int getMedian(ArrayList<Integer> values) {
         Collections.sort(values);
         int size = values.size();

@@ -29,30 +29,39 @@ public class MainActivity extends Activity implements FilterSelectionDialog.Filt
 
     private static final int SELECT_IMAGE = 100;
 
-    public Bitmap currentImage;
-    private Boolean imageLoaded;
+    // Current state variables
+    private Bitmap currentImage;
     private int selectedMaskSize;
 
+    // View items
     private ImageView imageView;
     private Button applyFilterButton;
 
+    // ASyncTask used for filtering
     private FilterTask filterTask;
 
     /**
-     * Called when the activity is first created.
+     * Called when the activity is first created
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        imageLoaded = false;
+        // Set default values if first time launching
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        // Retrieve saved mask size
         selectedMaskSize = PreferenceManager.getDefaultSharedPreferences(this).getInt("pref_mask_size",ImageFilter.SIZE_DEFAULT);
 
+        // Initialize views
         imageView = (ImageView)findViewById(R.id.imageView);
         applyFilterButton = (Button)findViewById(R.id.applyFilterButton);
     }
 
+    /**
+     * Called when the activity is resumed
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -93,10 +102,14 @@ public class MainActivity extends Activity implements FilterSelectionDialog.Filt
         return true;
     }
 
+    /**
+     * Called when an option is selected in the menu bar
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            // Settings has been selected
             case R.id.menu_settings:
                 launchPreferences();
                 return true;
@@ -111,9 +124,11 @@ public class MainActivity extends Activity implements FilterSelectionDialog.Filt
     private void launchPreferences() {
         Intent preferencesIntent = new Intent(MainActivity.this, SettingsActivity.class);
 
-        // Pass maximum possible mask size to preferences
-        int maxSize = currentImage == null ? ImageFilter.SIZE_MAX : Math.min(currentImage.getWidth(), currentImage.getHeight());
-        preferencesIntent.putExtra("max_mask_size", maxSize);
+        // Pass maximum possible mask size to preferences if image is loaded
+        if (currentImage != null) {
+            int maxSize = Math.min(currentImage.getWidth(), currentImage.getHeight());
+            preferencesIntent.putExtra("max_mask_size", maxSize);
+        }
 
         startActivity(preferencesIntent);
     }
@@ -158,7 +173,6 @@ public class MainActivity extends Activity implements FilterSelectionDialog.Filt
 
                     // Save currently selected image in memory (scaled down if needed)
                     currentImage = getScaledBitmapFromFilepath(filepath);
-                    imageLoaded = true;
                     updateViews();
                 }
         }
@@ -202,7 +216,7 @@ public class MainActivity extends Activity implements FilterSelectionDialog.Filt
      * Updates views attached to this activity
      */
     private void updateViews() {
-        if (imageLoaded) {
+        if (currentImage != null) {
             imageView.setBackground(null);
             imageView.setImageBitmap(currentImage);
             applyFilterButton.setEnabled(true);
@@ -218,11 +232,16 @@ public class MainActivity extends Activity implements FilterSelectionDialog.Filt
 
         ImageFilter filter;
 
+        /**
+         * Setup dialog
+         */
         @Override
         protected void onPreExecute() {
             dialog.setMessage("Filtering...");
             dialog.setCanceledOnTouchOutside(false);
             dialog.setCancelable(true);
+
+            // Cancel task and filtering if dialog is cancelled
             dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
@@ -233,12 +252,18 @@ public class MainActivity extends Activity implements FilterSelectionDialog.Filt
             dialog.show();
         }
 
+        /**
+         * Run filter in background task
+         */
         @Override
         protected Bitmap doInBackground(ImageFilter... filters) {
             filter = filters[0];
             return filter.applyFilter();
         }
 
+        /**
+         * Called when background task is finished
+         */
         @Override
         protected void onPostExecute(Bitmap result) {
             if (dialog.isShowing()) {
@@ -246,6 +271,15 @@ public class MainActivity extends Activity implements FilterSelectionDialog.Filt
             }
             currentImage = result;
             updateViews();
+        }
+
+        /**
+         * Called when the current task is cancelled
+         */
+        @Override
+        protected void onCancelled(Bitmap result) {
+            filter.cancelFiltering = true;
+            onCancelled();
         }
     }
 }

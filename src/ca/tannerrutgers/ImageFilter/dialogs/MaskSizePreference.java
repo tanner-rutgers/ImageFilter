@@ -24,6 +24,7 @@ import ca.tannerrutgers.ImageFilter.models.ImageFilter;
 public class MaskSizePreference extends DialogPreference {
 
     private static final int SIZE_DEFAULT = ImageFilter.SIZE_DEFAULT;
+    public static final int SIZE_DEFAULT_MAX = 999;
 
     private SeekBar sizeBar;
     private TextView sizeLabel;
@@ -41,16 +42,59 @@ public class MaskSizePreference extends DialogPreference {
         setNegativeButtonText(android.R.string.cancel);
     }
 
+    /**
+     * Set max size allowable for mask size/seek bar
+     */
+    public void setMaxSize(int maxSize) {
+        this.mMaxSize = getValidSize(maxSize);
+    }
+
+    /**
+     * Set size label to currently selected value, formatted
+     */
+    private void setSizeLabel() {
+        if (sizeLabel != null) {
+            sizeLabel.setText(mSelectedSize + " x " + mSelectedSize);
+        }
+    }
+
+    /**
+     * Transform the passed maskSize into a valid mask size and return
+     * (Odd, and within min and max bounds)
+     */
+    private int getValidSize(int maskSize) {
+        int validSize = maskSize;
+
+        if (validSize < ImageFilter.SIZE_MIN) {
+            validSize = ImageFilter.SIZE_MIN;
+        } else if (validSize > mMaxSize && mMaxSize > 0) {
+            validSize = mMaxSize;
+        }
+
+        if (validSize % 2 == 0 && validSize < mMaxSize) {
+            validSize += 1;
+        }
+
+        return validSize;
+    }
+
+    /**
+     * Called when dialog is displayed
+     */
     @Override
     public void onBindDialogView(View view) {
         // Retrieve dialog views
         sizeBar = (SeekBar) view.findViewById(R.id.filterSizeBar);
         sizeLabel = (TextView) view.findViewById(R.id.filterSizeLabel);
 
-        sizeBar.setMax(getValidSize(mMaxSize));
-        sizeBar.setProgress(getValidSize(mSelectedSize));
+        // Set values for dialog views
+        mMaxSize = getValidSize(mMaxSize);
+        sizeBar.setMax(mMaxSize);
+        mSelectedSize = getValidSize(mSelectedSize);
+        sizeBar.setProgress(mSelectedSize);
         setSizeLabel();
 
+        // Setup listener for seek bar
         sizeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -59,25 +103,44 @@ public class MaskSizePreference extends DialogPreference {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
     }
 
+    /**
+     * Called when preference dialog is first launched
+     */
     @Override
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        if (restorePersistedValue) {
+        if (restorePersistedValue) {    // Set size from persisted value
             mSelectedSize = getValidSize(this.getPersistedInt(SIZE_DEFAULT));
-        } else {
+        } else {                        // Set size from default value
             mSelectedSize = getValidSize((Integer)defaultValue);
         }
     }
 
+    /**
+     * Called when retrieving default value for preference
+     */
     @Override
     protected Object onGetDefaultValue(TypedArray a, int index) {
         return SIZE_DEFAULT;
+    }
+
+    /**
+     * Called when dialog is closed
+     */
+    @Override
+    protected void onDialogClosed(boolean positiveResult) {
+        // If OK was pressed, save selected mask size
+        if (positiveResult) {
+            persistInt(mSelectedSize);
+        }
     }
 
     @Override
@@ -112,38 +175,6 @@ public class MaskSizePreference extends DialogPreference {
         // Set this Preference's widget to reflect the restored state
         mSelectedSize = myState.value;
         setSizeLabel();
-    }
-
-    @Override
-    protected void onDialogClosed(boolean positiveResult) {
-        if (positiveResult) {
-            persistInt(getValidSize(mSelectedSize));
-        }
-    }
-
-    private void setSizeLabel() {
-        int validSize = getValidSize(mSelectedSize);
-        sizeLabel.setText(validSize + " x " + validSize);
-    }
-
-    private int getValidSize(int maskSize) {
-        int validSize = maskSize;
-
-        if (validSize < ImageFilter.SIZE_MIN) {
-            validSize = ImageFilter.SIZE_MIN;
-        } else if (validSize > mMaxSize) {
-            validSize = mMaxSize;
-        }
-
-        while (validSize % 2 == 0) {
-            validSize += 1;
-        }
-
-        return validSize;
-    }
-
-    public void setMaxSize(int maxSize) {
-        this.mMaxSize = maxSize;
     }
 
     private static class SavedState extends BaseSavedState {

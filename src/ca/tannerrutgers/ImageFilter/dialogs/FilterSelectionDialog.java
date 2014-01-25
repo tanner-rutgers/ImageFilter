@@ -48,9 +48,11 @@ public class FilterSelectionDialog extends DialogFragment {
                 .setItems(R.array.filter_types, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
+                            // Mean filter has been selected
                             case MEAN_FILTER:
                                 mListener.onMeanFilterSelection();
                                 break;
+                            // Median filter has been selected
                             case MEDIAN_FILTER:
                                 mListener.onMedianFilterSelection();
                                 break;

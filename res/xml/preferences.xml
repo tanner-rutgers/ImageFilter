@@ -4,5 +4,5 @@
     <ca.tannerrutgers.ImageFilter.dialogs.MaskSizePreference
         android:key="pref_mask_size"
         android:title="@string/mask_size"
-        android:defaultValue="3" />
+        android:defaultValue=""/>
 </PreferenceScreen>

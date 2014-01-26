@@ -14,9 +14,4 @@
 
     <solid android:color="@android:color/transparent" />
 
-    <margin
-            android:bottom="20dp"
-            android:left="20dp"
-            android:right="20dp"
-            android:top="20dp" />
 </shape>

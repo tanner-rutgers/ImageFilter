@@ -8,6 +8,12 @@ import android.graphics.BitmapFactory;
  */
 public class BitmapUtils {
 
+    /**
+     * Retrieve Bitmap located at given filepath scaled to reqWidth x requiredHeight
+     * @param filepath Filepath of Bitmap
+     * @param reqWidth Required width of returned Bitmap
+     * @param reqHeight Required height of returned Bitmap
+     */
     public static Bitmap decodeSampledBitmapFromFilepath(String filepath, int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
@@ -23,6 +29,13 @@ public class BitmapUtils {
         return BitmapFactory.decodeFile(filepath, options);
     }
 
+    /**
+     * Calculates sample size to use in the passed options so that the Bitmap
+     * represeneted by options can be scaled to reqWidth and reqHeight
+     * @param options Options of corresponding Bitmap
+     * @param reqWidth Required width of Bitmap
+     * @param reqHeight Required height of Bitmap
+     */
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
 
         // Raw height and width of image
@@ -46,6 +59,11 @@ public class BitmapUtils {
         return inSampleSize;
     }
 
+    /**
+     * Returns pixel map of given Bitmap
+     * @param bitmap Bitmap to retrieve pixels from
+     * @return int[] representing pixels of Bitmap
+     */
     public static int[] getPixels(Bitmap bitmap) {
 
         if (bitmap == null) {
